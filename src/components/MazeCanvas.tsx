@@ -70,8 +70,8 @@ export default function MazeCanvas({
       }
     }
 
-    const goalX = maze[0].length - 2;
-    const goalY = maze.length - 2;
+    const goalX = 1;
+    const goalY = 1;
 
     if (useIcons) {
       ctx.fillText(emojiIcons.goal, goalX * tileSize + tileSize / 2, goalY * tileSize + tileSize / 2);

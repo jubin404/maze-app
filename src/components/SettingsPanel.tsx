@@ -44,16 +44,17 @@ export default function SettingsPanel({
                     <label htmlFor="tts">Voice Assistance</label>
                 </div>
 
-                <div className="settings-option">
-                  <input
-                    type="checkbox"
-                    id="contrast"
-                    checked={highContrast}
-                    onChange={() => setHighContrast(!highContrast)}
-                    disabled={useIcons}
-                    aria-describedby={useIcons ? "contrastInfo" : undefined}
-                  />
-                  <label htmlFor="contrast">High Contrast Mode</label>
+                <div>
+                    <input
+                        type="checkbox"
+                        id="icons"
+                        checked={useIcons}
+                        onChange={() => {
+                            setUseIcons(!useIcons);
+                            if (useIcons) setColorBlindMode("normal");
+                        }}
+                    />
+                    <label htmlFor="icons">Icon Mode</label>
 
                   {useIcons && (
                     <div id="contrastInfo" className="note-text">

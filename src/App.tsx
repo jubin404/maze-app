@@ -10,7 +10,10 @@ import { generateMaze } from "./utils/generateMaze";
 function App() {
   const [level, setLevel] = useState(1);
   const [maze, setMaze] = useState<number[][]>(generateMaze(1));
-  const [player, setPlayer] = useState({ x: 1, y: 1 });
+  const [player, setPlayer] = useState({
+    x: generateMaze(1)[0].length - 2,
+    y: generateMaze(1).length - 2,
+  });
 
   const [showMessage, setShowMessage] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -70,8 +73,8 @@ function App() {
           setPlayer({ x: newX, y: newY });
           speak("Step");
 
-          const goalX = maze[0].length - 2;
-          const goalY = maze.length - 2;
+          const goalX = 1;
+          const goalY = 1;
 
           if (Math.abs(newX - goalX) + Math.abs(newY - goalY) === 1) {
             speak("Almost there");
@@ -80,11 +83,17 @@ function App() {
           if (newX === goalX && newY === goalY) {
             setShowMessage(true);
             speak("Finished");
+
+            const nextLevel = level + 1;
+            const newMaze = generateMaze(nextLevel);
+
             setTimeout(() => {
-              setLevel((l) => l + 1);
-              const newMaze = generateMaze(level + 1);
+              setLevel(nextLevel);
               setMaze(newMaze);
-              setPlayer({ x: 1, y: 1 });
+              setPlayer({
+                x: newMaze[0].length - 2,
+                y: newMaze.length - 2,
+              });
               setShowMessage(false);
             }, 1500);
           }
