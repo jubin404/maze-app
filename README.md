@@ -1,4 +1,4 @@
-# ♿ Maze Explorer – Accessible Maze Game (React + Vite)
+# ♿ Mazeverse – Accessible Maze Game (React + Vite)
 
 A fully accessible and responsive maze game built with **React**, powered by **Vite** for lightning-fast development, and containerized with **Docker**. Designed for inclusion and fun across all abilities.
 
