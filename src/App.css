@@ -1,42 +1,223 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Base styles */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000; /* Black background for high contrast */
+  color: #f0f0f0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Canvas container */
+.canvas-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #111;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Canvas element */
+canvas {
+  image-rendering: pixelated;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Settings button (gear icon) */
+#settings-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.8rem;
+  background: #222;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#settings-btn:hover {
+  background-color: #444;
+}
+
+/* Settings panel */
+#settings {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+  width: 260px;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+  z-index: 100;
+  transition: all 0.3s ease-in-out;
+}
+
+#settings label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+#settings input[type="checkbox"] {
+  transform: scale(1.3);
+  cursor: pointer;
+}
+
+#settings select {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+}
+
+#settings select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tooltip (ℹ️) */
+#settings span[title] {
+  color: #aaa;
+  cursor: help;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+
+#settings span[title]:hover {
+  color: #0ff;
+}
+
+/* Subtitle for accessibility */
+.subtitle {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  color: rgb(255, 255, 255);
+  text-shadow: 1px 1px 3px #000;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Level complete message */
+#message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  padding: 20px 30px;
+  border-radius: 12px;
+  border: 2px solid rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
+  font-size: 1.5rem;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  transition: all 0.3s ease-in-out;
+  z-index: 999;
+  animation: pulse 1.5s infinite alternate;
+}
+
+/* Pulsing animation */
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  }
+}
+
+/* Splash screen */
+.splash-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.game-title {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-shadow: 2px 2px 4px #000;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.play-button {
+  padding: 12px 24px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 10px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.play-button:hover {
+  transform: scale(1.05);
+  background-color: #218838;
 }
 
-.card {
-  padding: 2em;
+/* Screen-reader-only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.read-the-docs {
-  color: #888;
+/* Form elements */
+fieldset {
+  border: 1px solid #aaa;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #111; /* match dark theme */
+  color: #fff;
+}
+
+label {
+  margin-left: 0.4em;
+  font-size: 1rem;
+}
+
+div {
+  margin-bottom: 0.8em;
+}
+
+select[disabled],
+input[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

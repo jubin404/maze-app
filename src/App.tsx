@@ -1,70 +1,154 @@
-import React, { useState } from 'react';
-import { MazeGame } from './components/MazeGame';
-import { AccessibilitySettings } from './components/AccessibilitySettings';
-import { Button } from './components/ui/button';
-import { Settings, Home } from 'lucide-react';
+import { useEffect, useState } from "react";
+import "./App.css";
 
-export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'menu' | 'game' | 'settings'>('menu');
-  const [accessibilitySettings, setAccessibilitySettings] = useState({
-    highContrast: false,
-    audioEnabled: true,
-    largeText: false,
-    reducedMotion: false,
-    screenReader: false
-  });
+import MazeCanvas from "./components/MazeCanvas";
+import SettingsPanel from "./components/SettingsPanel";
+import SubtitleOverlay from "./components/SubtitleOverlay";
+import LevelCompleteMessage from "./components/LevelCompleteMessage";
+import { generateMaze } from "./utils/generateMaze";
 
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case 'game':
-        return <MazeGame accessibilitySettings={accessibilitySettings} onBack={() => setCurrentScreen('menu')} />;
-      case 'settings':
-        return (
-          <AccessibilitySettings
-            settings={accessibilitySettings}
-            onSettingsChange={setAccessibilitySettings}
-            onBack={() => setCurrentScreen('menu')}
-          />
-        );
-      default:
-        return (
-          <div className="flex flex-col items-center justify-center h-full p-6 space-y-8">
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl text-primary">🧩 Maze Adventure</h1>
-              <p className="text-muted-foreground max-w-sm">
-                Help the star find its way home through the maze!
-              </p>
-            </div>
+function App() {
+  const [level, setLevel] = useState(1);
+  const [maze, setMaze] = useState<number[][]>(generateMaze(1));
+  const [player, setPlayer] = useState({ x: 1, y: 1 });
 
-            <div className="w-full max-w-sm space-y-4">
-              <Button
-                onClick={() => setCurrentScreen('game')}
-                className="w-full h-16 text-lg"
-                aria-label="Start playing the maze game"
-              >
-                🎮 Play Game
-              </Button>
+  const [showMessage, setShowMessage] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [useIcons, setUseIcons] = useState(true);
+  const [highContrast, setHighContrast] = useState(false);
+  const [colorBlindMode, setColorBlindMode] = useState("normal");
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
+  const [subtitle, setSubtitle] = useState("");
+  const [tileSize, setTileSize] = useState(50);
+  const [showSplash, setShowSplash] = useState(true);
 
-              <Button
-                onClick={() => setCurrentScreen('settings')}
-                variant="outline"
-                className="w-full h-16 text-lg"
-                aria-label="Open accessibility settings"
-              >
-                <Settings className="w-6 h-6 mr-2" />
-                Settings
-              </Button>
-            </div>
-          </div>
-        );
-    }
-  };
+  const synth = window.speechSynthesis;
+
+  useEffect(() => {
+    const updateTileSize = () => {
+      const maxWidth = window.innerWidth * 0.7;
+      const maxHeight = window.innerHeight * 0.7;
+      const cols = maze[0].length;
+      const rows = maze.length;
+      const newTileSize = Math.floor(Math.min(maxWidth / cols, maxHeight / rows));
+      setTileSize(newTileSize);
+    };
+    updateTileSize();
+    window.addEventListener("resize", updateTileSize);
+    return () => window.removeEventListener("resize", updateTileSize);
+  }, [maze]);
+
+  useEffect(() => {
+    const speak = (text: string) => {
+      if (ttsEnabled) {
+        synth.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        synth.speak(utter);
+      }
+      setSubtitle(text);
+      setTimeout(() => setSubtitle(""), 2000);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      let { x, y } = player;
+      let newX = x;
+      let newY = y;
+
+      if (e.key === "ArrowUp") newY--;
+      else if (e.key === "ArrowDown") newY++;
+      else if (e.key === "ArrowLeft") newX--;
+      else if (e.key === "ArrowRight") newX++;
+
+      if (
+        newX >= 0 &&
+        newY >= 0 &&
+        newY < maze.length &&
+        newX < maze[0].length
+      ) {
+        if (maze[newY][newX] === 0) {
+          setPlayer({ x: newX, y: newY });
+          speak("Step");
+
+          const goalX = maze[0].length - 2;
+          const goalY = maze.length - 2;
+
+          if (Math.abs(newX - goalX) + Math.abs(newY - goalY) === 1) {
+            speak("Almost there");
+          }
+
+          if (newX === goalX && newY === goalY) {
+            setShowMessage(true);
+            speak("Finished");
+            setTimeout(() => {
+              setLevel((l) => l + 1);
+              const newMaze = generateMaze(level + 1);
+              setMaze(newMaze);
+              setPlayer({ x: 1, y: 1 });
+              setShowMessage(false);
+            }, 1500);
+          }
+        } else {
+          speak("Wall");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [player, maze, level, ttsEnabled]);
 
   return (
-    <div className={`min-h-screen bg-background ${accessibilitySettings.highContrast ? 'contrast-150' : ''} ${accessibilitySettings.largeText ? 'text-lg' : ''}`}>
-      <div className="max-w-md mx-auto h-screen flex flex-col">
-        {renderScreen()}
-      </div>
-    </div>
+    <>
+      {showSplash ? (
+        <div className="splash-screen">
+          <h1 className="game-title">
+            🧩 MazeVerse<br />
+          </h1>
+          <p>Help the star find its way home through the maze!</p>
+          <button className="play-button" onClick={() => setShowSplash(false)}>
+            🎮 Play Game
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="canvas-container">
+            <div className="level-display"><h2>Level {level}</h2></div>
+            <MazeCanvas
+              maze={maze}
+              player={player}
+              useIcons={useIcons}
+              tileSize={tileSize}
+              highContrast={highContrast}
+              colorBlindMode={colorBlindMode}
+            />
+          </div>
+
+          {subtitlesEnabled && <SubtitleOverlay subtitle={subtitle} />}
+          {showMessage && <LevelCompleteMessage level={level} />}
+
+          <button id="settings-btn" onClick={() => setShowSettings(!showSettings)}>
+            ⚙️
+          </button>
+
+          {showSettings && (
+            <SettingsPanel
+              useIcons={useIcons}
+              setUseIcons={setUseIcons}
+              highContrast={highContrast}
+              setHighContrast={setHighContrast}
+              colorBlindMode={colorBlindMode}
+              setColorBlindMode={setColorBlindMode}
+              subtitlesEnabled={subtitlesEnabled}
+              setSubtitlesEnabled={setSubtitlesEnabled}
+              ttsEnabled={ttsEnabled}
+              setTtsEnabled={setTtsEnabled}
+            />
+          )}
+        </>
+      )}
+    </>
   );
 }
+
+export default App;
