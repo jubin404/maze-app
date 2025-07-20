@@ -24,8 +24,7 @@ export default function SettingsPanel({
         <div id="settings" aria-label="Game Accessibility Settings" role="region">
             <fieldset>
                 <legend>Accessibility Options</legend>
-
-                <div>
+                <div className="settings-option">
                     <input
                         type="checkbox"
                         id="subtitles"
@@ -35,7 +34,7 @@ export default function SettingsPanel({
                     <label htmlFor="subtitles">Subtitles</label>
                 </div>
 
-                <div>
+                <div className="settings-option">
                     <input
                         type="checkbox"
                         id="tts"
@@ -45,21 +44,25 @@ export default function SettingsPanel({
                     <label htmlFor="tts">Voice Assistance</label>
                 </div>
 
-                <div>
-                    <input
-                        type="checkbox"
-                        id="icons"
-                        checked={useIcons}
-                        onChange={() => {
-                            setUseIcons(!useIcons);
-                            if (useIcons) setColorBlindMode("normal");
-                        }}
-                    />
-                    <label htmlFor="icons">Icon Mode</label>
-                    <span>(Disable Icon mode to use high-contrast and colorblind modes)</span>
+                <div className="settings-option">
+                  <input
+                    type="checkbox"
+                    id="contrast"
+                    checked={highContrast}
+                    onChange={() => setHighContrast(!highContrast)}
+                    disabled={useIcons}
+                    aria-describedby={useIcons ? "contrastInfo" : undefined}
+                  />
+                  <label htmlFor="contrast">High Contrast Mode</label>
+
+                  {useIcons && (
+                    <div id="contrastInfo" className="note-text">
+                      Disable Icon Mode to enable High Contrast Mode
+                    </div>
+                  )}
                 </div>
 
-                <div>
+                <div className="settings-option">
                     <input
                         type="checkbox"
                         id="contrast"
@@ -76,7 +79,7 @@ export default function SettingsPanel({
                     )}
                 </div>
 
-                <div>
+                <div className="settings-option">
                     <label htmlFor="colorBlindMode">Colorblind Mode:</label>
                     <select
                         id="colorBlindMode"
@@ -100,4 +103,3 @@ export default function SettingsPanel({
         </div>
     );
 }
-
